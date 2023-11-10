@@ -1,0 +1,81 @@
+version: '3.3'
+services:
+  root-container:
+    build: .
+    container_name: root_container
+
+  php-app:
+    extends:
+      file: ../PHP-App/docker-compose.yml
+      service: saranghaengbok
+  
+  soap-services:
+    extends:
+      file: ../SOAP-Service/docker-compose.yml
+      service: soap-service
+
+  client-spa:
+    extends:
+      file: ../client-spa/docker-compose.yml
+      service: client-spa
+
+  rest-services:
+    extends:
+      file: ../rest-service/docker-compose.yml
+      service: rest-service
+
+  db-soap-service:
+    container_name: db_soap
+    image: mysql:latest
+    ports:
+      - 6604:3306
+    volumes:
+      - soap_service:/data/db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_USER: root
+      MYSQL_DATABASE: saranghaengbok_soap
+
+  db-php-app:
+    container_name: db_php
+    image: mysql:latest
+    ports:
+      - 6603:3306
+    volumes:
+      - php_app:/data/db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_USER: root
+      MYSQL_DATABASE: saranghaengbok_php
+
+  db-rest-service:
+    container_name: db_rest
+    image: mysql:latest
+    ports:
+      - 6605:3306
+    volumes:
+      - rest_service:/data/db
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_USER: root
+      MYSQL_DATABASE: saranghaengbok_rest
+
+  phpmyadmin:
+    container_name: pma_container
+    image: phpmyadmin:latest
+    restart: always
+    links:
+    - db-php-app
+    - db-soap-service
+    - db-rest-service
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_PORT=3306
+      - PMA_HOSTS=db-php-app, db-soap-service, db-rest-service
+
+volumes:
+  php_app:
+  soap_service:
+  rest_service:
