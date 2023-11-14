@@ -9,56 +9,51 @@ services:
     ports:
       - 3308:3306
     volumes:
-      - ./db:/docker-entrypoint-initdb.d
+      - db-soap-service:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: admin
-      MYSQL_ROOT_USER: root
-      MYSQL_HOST: db-soap-service:3306
       MYSQL_DATABASE: saranghaengbok_soap
 
-  # db-php-app:
-  #   container_name: db-php-app
-  #   image: mysql:latest
-  #   ports:
-  #     - 6603:3306
-  #   volumes:
-  #     - ./db:/docker-entrypoint-initdb.d
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: admin
-  #     MYSQL_ROOT_USER: root
-  #     MYSQL_DATABASE: saranghaengbok_php
+  db-php-app:
+    image: mysql:latest
+    ports:
+      - 6603:3306
+    volumes:
+      - db-php-app:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: saranghaengbok_php
 
-  # db-rest-service:
-  #   container_name: db-rest-service
-  #   image: mysql:latest
-  #   ports:
-  #     - 6605:3306
-  #   volumes:
-  #     - ./db:/docker-entrypoint-initdb.d
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: admin
-  #     MYSQL_ROOT_USER: root
-  #     MYSQL_DATABASE: saranghaengbok_rest
+  db-rest-service:
+    image: mysql:latest
+    ports:
+      - 6605:3306
+    volumes:
+      - db-rest-service:/var/lib/mysql
 
-  # php-app:
-  #   extends:
-  #     file: ../PHP-App/docker-compose.yml
-  #     service: saranghaengbok
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: saranghaengbok_rest
+
+  php-app:
+    extends:
+      file: ../PHP-App/docker-compose.yml
+      service: php-app
   
-  soap-services:
+  soap-service:
     extends:
       file: ../SOAP-Service/docker-compose.yml
       service: soap-service
 
-  # client-spa:
-  #   extends:
-  #     file: ../client-spa/docker-compose.yml
-  #     service: client-spa
+  client-spa:
+    extends:
+      file: ../client-spa/docker-compose.yml
+      service: client-spa
 
-  # rest-services:
-  #   extends:
-  #     file: ../rest-service/docker-compose.yml
-  #     service: rest-service
+  rest-service:
+    extends:
+      file: ../rest-service/docker-compose.yml
+      service: rest-service
 
 
   phpmyadmin:
@@ -66,9 +61,9 @@ services:
     image: phpmyadmin:latest
     restart: always
     links:
-    # - db-php-app
+    - db-php-app
     - db-soap-service
-    # - db-rest-service
+    - db-rest-service
     ports:
       - 8080:80
     environment:
@@ -77,6 +72,12 @@ services:
       - PMA_HOSTS=db-php-app, db-soap-service, db-rest-service
 
 volumes:
-  # php_app:
-  soap_service:
-  # rest_service:
+  db-rest-service:
+    # external: true
+    # name: db-rest-service
+  db-soap-service:
+    # external: true
+    # name: db-soap-service
+  db-php-app:
+    # external: true
+    # name: db-php-app
