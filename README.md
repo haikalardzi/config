@@ -13,3 +13,7 @@ git clone https://github.com/AlphaThrone/soap-service
 ```
 docker compose up --build -d
 ```
+## Pembagian Tugas
+
+### Config
+Integrasi config : 13521012
